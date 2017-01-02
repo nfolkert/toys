@@ -4,6 +4,42 @@
   <meta charset="UTF-8">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script>
+    function generateCirclePoints(numPoints, width, height) {
+      var points = [];
+      for (var i = 0; i < numPoints; i++) {
+        var a = Math.PI * 2 * (i / numPoints) - (Math.PI / 2);
+        var x = (width/2) * (1 + Math.cos(a));
+        var y = (height/2) * (1 + Math.sin(a));
+        points.push([x,y]);
+      }
+      return points;
+    }
+
+    function generateEdges(points, increment, rays) {
+      var edges = [];
+      for (var i = 0; i < points.length; i++) {
+        var pt = points[i];
+        var maxRays = Math.min(points.length, rays);
+        for (var j = 0; j < maxRays; j++) {
+          var next = points[((i + increment) + j) % points.length];
+          edges.push([pt, next]);
+        }
+      }
+      return edges;
+    }
+
+    function drawEdges(edges, ctx) {
+      ctx.beginPath();
+      for (var i = 0; i < edges.length; i++) {
+        var edge = edges[i];
+        var pt = edge[0];
+        var next = edge[1];
+        ctx.moveTo(pt[0], pt[1]);
+        ctx.lineTo(next[0], next[1]);
+      }
+      ctx.stroke();
+    }
+
     function draw() {
       var cel = $('#canvas');
       var numPoints = parseInt($('#points').val());
@@ -17,13 +53,8 @@
       var c = cel[0];
       var ctx = c.getContext("2d");
 
-      var points = [];
-      for (var i = 0; i < numPoints; i++) {
-        var a = Math.PI * 2 * (i / numPoints) - (Math.PI / 2);
-        var x = (width/2) * (1 + Math.cos(a));
-        var y = (height/2) * (1 + Math.sin(a));
-        points.push([x,y]);
-      }
+      var points = generateCirclePoints(numPoints, width, height);
+      var edges = generateEdges(points, increment, rays);
 
       var gradient = ctx.createLinearGradient(0, 0, width * .75, height * .75);
       gradient.addColorStop(0, "red");
@@ -31,17 +62,8 @@
       gradient.addColorStop(1.0, "purple");
       ctx.lineWidth = 1;
       ctx.strokeStyle = gradient;
-      ctx.beginPath();
-      for (i = 0; i < numPoints; i++) {
-        var pt = points[i];
-        var maxRays = Math.min(numPoints, rays);
-        for (var j = 0; j < maxRays; j++) {
-          var next = points[((i + increment) + j) % numPoints];
-          ctx.moveTo(pt[0], pt[1]);
-          ctx.lineTo(next[0], next[1]);
-        }
-      }
-      ctx.stroke();
+
+      drawEdges(edges, ctx);
     }
     $(function() {draw();})
   </script>
