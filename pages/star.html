@@ -40,6 +40,20 @@
       ctx.stroke();
     }
 
+    function setup() {
+      var url = window.location.href;
+      var params = {};
+      url.replace(/[?&]+([^=&#]+)=([^&#]*)/gi, function(m,key,value) {
+        params[key] = decodeURIComponent(value.replace(/\+/g, '%20'));
+      });
+
+      if (params["points"]) $('#points').val(Math.min(1000, params["points"]));
+      if (params["increment"]) $('#increment').val(Math.min(1000, params["increment"]));
+      if (params["height"]) $('#height').val(Math.min(1000, params["height"]));
+      if (params["width"]) $('#width').val(Math.min(1000, params["width"]));
+      if (params["rays"]) $('#rays').val(Math.min(1000, params["rays"]));
+    }
+
     function draw() {
       var cel = $('#canvas');
       var numPoints = parseInt($('#points').val());
@@ -65,7 +79,7 @@
 
       drawEdges(edges, ctx);
     }
-    $(function() {draw();})
+    $(function() { setup(); draw(); })
   </script>
 </head>
 <body>
